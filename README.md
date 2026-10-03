@@ -23,15 +23,15 @@ Abrir `http://localhost:4173` en el navegador. Los cambios se guardan en `localS
 
 ## Publicación en Athaleo
 
-El repositorio personal es `git@github.com:lucianomarchese/pos.git`. El destino de la demo es `https://pos.athaleo.dev`, servido por el VPS de Athaleo y Caddy. El DNS comodín de `*.athaleo.dev` ya apunta al VPS.
+El repositorio personal es `git@github.com:lucianomarchese/pos.git`. La demo está publicada en `https://pos.athaleo.dev`, servida por el VPS de Athaleo y Caddy. El DNS comodín de `*.athaleo.dev` apunta al VPS.
 
 Cada push a `main`, incluido un merge, ejecuta pruebas y prepara los archivos estáticos. Si pasan, GitHub Actions sube una nueva versión al VPS, cambia el enlace `current` y recarga Caddy. Los pull requests a `main` solo ejecutan verificaciones. También se puede iniciar el workflow manualmente.
 
-Para activar el primer despliegue:
+Para recuperar la configuración de despliegue si se pierden los secretos del repositorio:
 
 1. Verificar `gh auth status` desde una terminal del VPS con acceso de red. Si la credencial no funciona, autenticar `gh` con la cuenta personal `lucianomarchese`.
 2. Ejecutar `bash ops/configure-github-secrets.sh` desde una copia de este repositorio en el VPS. El script lee credenciales ya existentes **fuera del repositorio** y crea los seis secretos requeridos en `lucianomarchese/pos`.
-3. Subir `main` al remoto o iniciar **Verify and deploy POS demo** en Actions. Comprobar el resultado del workflow y abrir `https://pos.athaleo.dev`.
+3. Iniciar **Verify and deploy POS demo** en Actions o subir un cambio a `main`. Comprobar el resultado del workflow y abrir `https://pos.athaleo.dev`.
 
 El workflow instala `/etc/caddy/sites/pos.athaleo.dev.caddy` y publica archivos en `/srv/www/astro/pos`. No requiere crear un servicio de Node ni una base de datos. La configuración de Caddy está en `ops/pos.athaleo.dev.caddy`.
 
@@ -51,4 +51,4 @@ Es una **demo local**. El selector de rol sirve para mostrar vistas; no es auten
 
 Una versión operativa para clientes necesitaría servidor, base de datos transaccional, autenticación y permisos reales, respaldos, importación controlada y pruebas con procesos del negocio. El proyecto de origen en Apps Script se mantiene separado.
 
-**Estado:** demo pública autorizada por Luciano con datos ficticios. Los textos comerciales, capturas y el caso de portfolio siguen en revisión.
+**Estado:** demo pública autorizada por Luciano con datos ficticios; primer despliegue automático verificado el 3 de octubre de 2026. Los textos comerciales, capturas y el caso de portfolio siguen en revisión.
