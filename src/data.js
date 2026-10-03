@@ -1,4 +1,4 @@
-export const STORAGE_KEY = 'ganeshas-pos-demo-v1';
+export const STORAGE_KEY = 'pos-studio-demo-v1';
 
 const now = () => new Date().toISOString();
 const id = (prefix) => `${prefix}-${crypto.randomUUID().slice(0, 8)}`;

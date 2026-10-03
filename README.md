@@ -1,6 +1,6 @@
-# POS Studio — demo de Ganesha POS V2
+# POS Studio — demo de ventas e inventario
 
-Webapp de demostración basada en el sistema de POS, inventario y operación que Luciano creó para Ganesha's Lounge. Esta versión usa **datos ficticios** y muestra cómo se conectan las ventas, existencias, proveedores, caja, equipo y reportes.
+Webapp de demostración independiente creada por Luciano a partir de su experiencia desarrollando sistemas de POS, inventario y operación para un negocio. Usa **datos ficticios** y muestra cómo se conectan las ventas, existencias, proveedores, caja, equipo y reportes.
 
 ## Abrir la demo local
 
