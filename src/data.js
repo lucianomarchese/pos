@@ -7,7 +7,7 @@ const presets = {
   lounge: {
     businessName: 'Lounge Aurora',
     subtitle: 'Boutique · Cocina · Lounge',
-    accent: '#d9774a',
+    accent: '#b7642d',
     currency: 'MXN',
     taxRate: 0,
     lowStockAt: 4,

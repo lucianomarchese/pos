@@ -33,7 +33,11 @@ Para recuperar la configuración de despliegue si se pierden los secretos del re
 2. Ejecutar `bash ops/configure-github-secrets.sh` desde una copia de este repositorio en el VPS. El script lee credenciales ya existentes **fuera del repositorio** y crea los seis secretos requeridos en `lucianomarchese/pos`.
 3. Iniciar **Verify and deploy POS demo** en Actions o subir un cambio a `main`. Comprobar el resultado del workflow y abrir `https://pos.athaleo.dev`.
 
-El workflow instala `/etc/caddy/sites/pos.athaleo.dev.caddy` y publica archivos en `/srv/www/astro/pos`. No requiere crear un servicio de Node ni una base de datos. La configuración de Caddy está en `ops/pos.athaleo.dev.caddy`.
+El workflow instala `/etc/caddy/sites/pos.athaleo.dev.caddy` y publica archivos en `/srv/www/astro/pos/releases/<commit>`. Caddy sirve `/srv/www/astro/pos/current`, un enlace a la versión activa. No requiere crear un servicio de Node ni una base de datos. La configuración de Caddy está en `ops/pos.athaleo.dev.caddy`.
+
+## Diseño para iPad
+
+La pantalla de inicio recupera los accesos grandes del POS original: Ventas, Caja, Equipo y checador, Inventario, Transacciones y Proveedores se abren con un toque. El escenario lounge usa una paleta cálida de arena, terracota y verde salvia, además de tipografía serif en títulos; la pantalla de ventas conserva el catálogo y la comanda en paralelo. Se revisó el diseño en una ventana de 1024 × 768, tamaño objetivo del iPad horizontal. Falta probarlo en un iPad físico.
 
 ## Estructura
 
@@ -47,7 +51,7 @@ El workflow instala `/etc/caddy/sites/pos.athaleo.dev.caddy` y publica archivos 
 
 ## Alcance de esta versión
 
-Es una **demo local**. El selector de rol sirve para mostrar vistas; no es autenticación real. `localStorage` mantiene los cambios por navegador y no coordina ventas entre dispositivos. Los conectores Wix/correo se simulan, sin usar cuentas reales ni enviar mensajes. La moneda configura el formato de los importes de ejemplo y no realiza conversión de divisas.
+Es una **demo pública con datos locales en cada navegador**. El selector de rol sirve para mostrar vistas; no es autenticación real. `localStorage` mantiene los cambios por navegador y no coordina ventas entre dispositivos. Los conectores Wix/correo se simulan, sin usar cuentas reales ni enviar mensajes. La moneda configura el formato de los importes de ejemplo y no realiza conversión de divisas.
 
 Una versión operativa para clientes necesitaría servidor, base de datos transaccional, autenticación y permisos reales, respaldos, importación controlada y pruebas con procesos del negocio. El proyecto de origen en Apps Script se mantiene separado.
 

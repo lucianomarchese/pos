@@ -29,7 +29,7 @@ function navigate(view) {
 
 test('every main screen renders with seeded data', () => {
   for (const [view, marker] of [
-    ['inicio', 'Todo tu negocio'], ['ventas', 'Nueva venta'], ['inventario', 'Todos los productos'],
+    ['inicio', 'Flujos del día'], ['ventas', 'Nueva venta'], ['inventario', 'Todos los productos'],
     ['proveedores', 'Movimientos con proveedores'], ['caja', 'SALDO ESPERADO'],
     ['transacciones', 'Todas las transacciones'], ['equipo', 'Horas registradas'],
     ['reportes', 'Ventas por área'], ['configuracion', 'Configuración del negocio'],
@@ -37,6 +37,12 @@ test('every main screen renders with seeded data', () => {
     navigate(view);
     assert.ok(app.innerHTML.includes(marker), `Falta ${marker} en ${view}`);
   }
+});
+
+test('home keeps large direct access to operational areas', () => {
+  navigate('inicio');
+  const targets = [...app.innerHTML.matchAll(/<button class="module-card [^"]*" data-view="([^"]+)"/g)].map((match) => match[1]);
+  assert.deepEqual(targets, ['ventas', 'caja', 'equipo', 'inventario', 'transacciones', 'proveedores', 'reportes', 'configuracion']);
 });
 
 test('modal forms render for operational flows', () => {

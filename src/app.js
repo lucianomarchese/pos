@@ -63,7 +63,7 @@ function shell() {
   const logo = state.settings.logoDataUrl && /^data:image\/(png|jpeg|webp);base64,/i.test(state.settings.logoDataUrl)
     ? `<img src="${esc(state.settings.logoDataUrl)}" alt="" />` : null;
   return `
-    <div class="app-shell" style="--accent:${esc(state.settings.accent)}">
+    <div class="app-shell" data-preset="${esc(state.preset)}" style="--accent:${esc(state.settings.accent)}">
       <aside class="sidebar">
         <div class="brand"><div class="brand-mark">${logo || 'P<span>·</span>'}</div><div><strong>POS Studio</strong><small>DEMO INTERACTIVA</small></div></div>
         <div class="workspace-switch"><div class="workspace-avatar">${logo || esc(state.settings.businessName.slice(0, 1))}</div><div><strong>${esc(state.settings.businessName)}</strong><small>${esc(state.settings.subtitle)}</small></div><span>⌄</span></div>
@@ -95,17 +95,21 @@ function renderHome() {
   const stats = dashboardStats(state);
   const recent = state.sales.slice(0, 4);
   const cash = stats.cash;
-  const steps = [
-    ['caja', '01', 'Abre la caja', 'Define un fondo inicial y habilita cobros en efectivo.'],
-    ['ventas', '02', 'Registra una venta', 'Arma una comanda y mira cómo cambian los datos.'],
-    ['proveedores', '03', 'Recibe productos', 'Agrega stock y consulta saldos por proveedor.'],
-    ['reportes', '04', 'Explora resultados', 'Ventas, márgenes y actividad en un solo lugar.'],
+  const modules = [
+    ['ventas', '01', 'Ventas', 'Abre el POS y registra una comanda.', '▦', 'primary'],
+    ['caja', '02', 'Caja', 'Aperturas, movimientos y cierres.', '▣', 'primary'],
+    ['equipo', '03', 'Equipo y checador', 'Entradas, salidas y comisiones.', '◷', ''],
+    ['inventario', '04', 'Inventario', 'Productos, existencias y ajustes.', '▤', ''],
+    ['transacciones', '05', 'Transacciones', 'Consulta ventas y devoluciones.', '⇄', ''],
+    ['proveedores', '06', 'Proveedores', 'Entregas, pagos y saldos.', '◇', ''],
+    ['reportes', '07', 'Reportes', 'Mira la actividad del negocio.', '▥', ''],
+    ['configuracion', '08', 'Personalizar', 'Adapta el sistema a otro negocio.', '⚙', ''],
   ];
-  return `${heading('PANORAMA DEL NEGOCIO', `Hola, ${state.settings.businessName}`, 'Una vista clara de lo que está pasando. Prueba cada módulo con datos de ejemplo.', `<button class="button primary" data-view="ventas">Nueva venta <span>→</span></button>`)}
-    <section class="hero-panel"><div><div class="hero-tag">✦ SISTEMA ADAPTABLE</div><h2>Todo tu negocio,<br><em>en un solo lugar.</em></h2><p>Ventas, inventario, proveedores, caja y equipo conectados. Cada operación actualiza el resto del sistema.</p><button data-view="configuracion">Explorar personalización <span>↗</span></button></div><div class="hero-art"><div class="art-ring ring-one"></div><div class="art-ring ring-two"></div><div class="art-card art-a"><small>VENTA REGISTRADA</small><strong>+ ${money(420)}</strong><span>↗ Stock y reportes actualizados</span></div><div class="art-card art-b"><span>◈</span><div><strong>Inventario conectado</strong><small>En tiempo real</small></div></div></div></section>
-    <div class="metrics-grid">${metric('Ventas totales', money(stats.revenue), `${stats.salesCount} transacciones activas`, '↗')}${metric('Ventas de hoy', money(stats.todayRevenue), 'Se actualiza con cada operación', '◉')}${metric('Productos por reponer', String(stats.lowStock.length).padStart(2, '0'), 'Según el umbral configurado', '▤', stats.lowStock.length ? 'alert' : '')}${metric('Saldo a proveedores', money(stats.supplierDue), cash ? 'Caja abierta' : 'Caja pendiente de apertura', '◇')}</div>
-    <div class="two-columns"><section class="panel"><div class="section-head"><div><span class="eyebrow">RECORRIDO SUGERIDO</span><h2>Explora cómo funciona</h2></div><span class="soft-tag">4 pasos</span></div><div class="tour-list">${steps.map(([target, number, title, description]) => `<button class="tour-item" data-view="${target}"><span class="tour-number">${number}</span><div><strong>${title}</strong><small>${description}</small></div><span class="tour-arrow">↗</span></button>`).join('')}</div></section>
-    <section class="panel"><div class="section-head"><div><span class="eyebrow">ACTIVIDAD RECIENTE</span><h2>Últimas ventas</h2></div><button class="text-link" data-view="transacciones">Ver todas ↗</button></div>${recent.length ? `<div class="activity-list">${recent.map((sale) => `<div class="activity-row"><div class="activity-icon">↗</div><div><strong>${sale.items.map((item) => item.name).slice(0, 2).map(esc).join(', ')}</strong><small>${date(sale.at)} · ${esc(sale.paymentMethod)}</small></div><span>${money(sale.total)}</span></div>`).join('')}</div>` : empty('Todavía no hay ventas', 'Registra una venta para ver actividad aquí.')}</section></div>`;
+  return `${heading('CENTRO DE OPERACIONES', state.settings.businessName, 'Entra a cada área con un toque. Los datos de esta demo son ficticios.')}
+    <section class="home-intro" aria-label="Estado del negocio"><div><span class="home-intro-kicker">${esc(state.settings.subtitle)}</span><h2>La operación diaria,<br><em>a un toque.</em></h2><p>Ventas, caja, inventario y equipo conectados para trabajar sin perder el ritmo.</p></div><div class="home-intro-status"><span>ESTADO DE CAJA</span><strong>${cash ? 'Abierta' : 'Pendiente de apertura'}</strong><small>${stats.salesCount} ventas registradas en esta demo</small></div></section>
+    <section class="home-modules" aria-label="Accesos principales"><div class="section-head"><div><span class="eyebrow">ACCESOS RÁPIDOS</span><h2>Flujos del día</h2></div><span class="soft-tag">Elige un área</span></div><div class="module-grid">${modules.map(([target, number, title, description, symbol, tone]) => `<button class="module-card ${tone}" data-view="${target}"><span class="module-card-top"><span class="module-symbol" aria-hidden="true">${symbol}</span><span class="module-number">${number}</span></span><strong>${title}</strong><small>${description}</small><span class="module-arrow" aria-hidden="true">↗</span></button>`).join('')}</div></section>
+    <section class="home-overview" aria-label="Resumen del negocio"><div class="section-head"><div><span class="eyebrow">EN ESTE MOMENTO</span><h2>Panorama del negocio</h2></div></div><div class="metrics-grid">${metric('Ventas totales', money(stats.revenue), `${stats.salesCount} transacciones activas`, '↗')}${metric('Ventas de hoy', money(stats.todayRevenue), 'Se actualiza con cada operación', '◉')}${metric('Productos por reponer', String(stats.lowStock.length).padStart(2, '0'), 'Según el umbral configurado', '▤', stats.lowStock.length ? 'alert' : '')}${metric('Saldo a proveedores', money(stats.supplierDue), cash ? 'Caja abierta' : 'Caja pendiente de apertura', '◇')}</div></section>
+    <section class="panel home-activity"><div class="section-head"><div><span class="eyebrow">ACTIVIDAD RECIENTE</span><h2>Últimas ventas</h2></div><button class="text-link" data-view="transacciones">Ver todas ↗</button></div>${recent.length ? `<div class="activity-list">${recent.map((sale) => `<div class="activity-row"><div class="activity-icon">↗</div><div><strong>${sale.items.map((item) => item.name).slice(0, 2).map(esc).join(', ')}</strong><small>${date(sale.at)} · ${esc(sale.paymentMethod)}</small></div><span>${money(sale.total)}</span></div>`).join('')}</div>` : empty('Todavía no hay ventas', 'Registra una venta para ver actividad aquí.')}</section>`;
 }
 
 function renderProductCard(product) {
