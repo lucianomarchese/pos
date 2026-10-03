@@ -29,7 +29,7 @@ Cada push a `main`, incluido un merge, ejecuta pruebas y prepara los archivos es
 
 Para activar el primer despliegue:
 
-1. Autenticar `gh` con la cuenta personal `lucianomarchese` en el VPS.
+1. Verificar `gh auth status` desde una terminal del VPS con acceso de red. Si la credencial no funciona, autenticar `gh` con la cuenta personal `lucianomarchese`.
 2. Ejecutar `bash ops/configure-github-secrets.sh` desde una copia de este repositorio en el VPS. El script lee credenciales ya existentes **fuera del repositorio** y crea los seis secretos requeridos en `lucianomarchese/pos`.
 3. Subir `main` al remoto o iniciar **Verify and deploy POS demo** en Actions. Comprobar el resultado del workflow y abrir `https://pos.athaleo.dev`.
 
