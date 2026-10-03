@@ -1968,3 +1968,9 @@ td .badge {
 .balance-preview>div strong {
   color:#254935
 }
+.brand-mark img,.workspace-avatar img {
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  border-radius:inherit
+}

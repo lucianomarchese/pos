@@ -18,7 +18,7 @@ Abrir `http://localhost:4173` en el navegador. Los cambios se guardan en `localS
 2. Registrar una entrega o retiro de proveedor, consultar saldo y aplicar un pago.
 3. Registrar entrada/salida de un integrante y revisar sus horas y comisiones.
 4. Devolver una venta y verificar movimientos compensatorios.
-5. Cambiar nombre, áreas, impuestos, moneda de visualización, medios de pago y reglas de stock; probar un segundo escenario de negocio.
+5. Cambiar nombre, logo local, color, áreas, impuestos, moneda de visualización, medios de pago y reglas de stock; probar un segundo escenario de negocio.
 6. Simular la cola de sincronización del catálogo, consultar una vista previa de balance y exportar ventas a CSV.
 
 ## Estructura

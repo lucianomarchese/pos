@@ -73,6 +73,7 @@ export function createSeed(preset = 'lounge') {
     settings: {
       businessName: source.businessName,
       subtitle: source.subtitle,
+      logoDataUrl: null,
       accent: source.accent,
       currency: source.currency,
       taxRate: source.taxRate,
@@ -118,6 +119,14 @@ export function createSeed(preset = 'lounge') {
     tip: 0,
     total: first.price + second.price * 2,
     commission: Math.round((first.price + second.price * 2) * source.employees[0].commissionRate) / 100,
+    status: 'completed',
+  });
+  state.sales.unshift({
+    id: id('sale'), at: now(), employeeId: source.employees[1].id,
+    paymentMethod: 'Tarjeta',
+    items: [{ productId: second.id, name: second.name, sku: second.sku, area: second.area, quantity: 1, unitPrice: second.price, unitCost: second.cost, supplierId: second.supplierId, acquisition: second.acquisition }],
+    subtotal: second.price, discountPct: 0, discount: 0, tax: 0, tip: 0, total: second.price,
+    commission: Math.round(second.price * source.employees[1].commissionRate) / 100,
     status: 'completed',
   });
   if (first.trackStock) {

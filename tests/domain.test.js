@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createSeed } from '../src/data.js';
-import { activeCashSession, applyAction, cashExpected, dashboardStats, supplierBalance } from '../src/domain.js';
+import { activeCashSession, applyAction, cashExpected, dashboardStats, priceSale, supplierBalance } from '../src/domain.js';
 
 function action(state, name, payload) {
   return applyAction(state, name, payload).state;
@@ -86,8 +86,33 @@ test('renaming an area updates products and historical sale lines for reports', 
     areas: 'Tienda, Cocina, Lounge', paymentMethods: ['Efectivo', 'Tarjeta'],
   });
   assert.equal(state.products.find((item) => item.id === 'p-ceramica').area, 'Tienda');
-  assert.equal(state.sales[0].items[0].area, 'Tienda');
+  assert.equal(state.sales.find((sale) => sale.items.some((item) => item.productId === 'p-ceramica')).items[0].area, 'Tienda');
   assert.throws(() => applyAction(state, 'settings', {
     businessName: 'Demo', areas: 'Cocina, Lounge', paymentMethods: ['Tarjeta'], taxRate: 0, lowStockAt: 4,
   }), /Reasigna los productos/);
+});
+
+test('a manual charge follows discount, tax and tip configuration', () => {
+  let state = createSeed();
+  state = action(state, 'settings', {
+    businessName: 'Demo', subtitle: '', accent: '#527f6b', currency: 'MXN',
+    taxRate: 16, lowStockAt: 4, allowNegativeStock: false,
+    areas: 'Boutique, Cocina, Lounge', paymentMethods: ['Tarjeta'],
+  });
+  const quote = priceSale(state, [{ name: 'Servicio especial', unitPrice: 100, quantity: 2 }], 10, 15);
+  assert.equal(quote.subtotal, 200);
+  assert.equal(quote.discount, 20);
+  assert.equal(quote.tax, 28.8);
+  assert.equal(quote.total, 223.8);
+});
+
+test('branding accepts a small image and rejects unsupported formats', () => {
+  const input = {
+    businessName: 'Mi tienda', subtitle: '', accent: '#527f6b', currency: 'MXN',
+    taxRate: 0, lowStockAt: 4, allowNegativeStock: false,
+    areas: 'Boutique, Cocina, Lounge', paymentMethods: ['Tarjeta'],
+  };
+  const state = action(createSeed(), 'settings', { ...input, logoDataUrl: 'data:image/png;base64,AA==' });
+  assert.equal(state.settings.logoDataUrl, 'data:image/png;base64,AA==');
+  assert.throws(() => applyAction(state, 'settings', { ...input, logoDataUrl: 'data:image/svg+xml;base64,AA==' }), /logo debe/);
 });

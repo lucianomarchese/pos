@@ -60,11 +60,13 @@ const nav = [
 
 function shell() {
   const labels = { inicio: 'Centro de operaciones', ventas: 'Punto de venta', inventario: 'Inventario', proveedores: 'Proveedores', caja: 'Control de caja', transacciones: 'Transacciones', equipo: 'Equipo y comisiones', reportes: 'Reportes', configuracion: 'Personalización' };
+  const logo = state.settings.logoDataUrl && /^data:image\/(png|jpeg|webp);base64,/i.test(state.settings.logoDataUrl)
+    ? `<img src="${esc(state.settings.logoDataUrl)}" alt="" />` : null;
   return `
     <div class="app-shell" style="--accent:${esc(state.settings.accent)}">
       <aside class="sidebar">
-        <div class="brand"><div class="brand-mark">P<span>·</span></div><div><strong>POS Studio</strong><small>DEMO INTERACTIVA</small></div></div>
-        <div class="workspace-switch"><div class="workspace-avatar">${esc(state.settings.businessName.slice(0, 1))}</div><div><strong>${esc(state.settings.businessName)}</strong><small>${esc(state.settings.subtitle)}</small></div><span>⌄</span></div>
+        <div class="brand"><div class="brand-mark">${logo || 'P<span>·</span>'}</div><div><strong>POS Studio</strong><small>DEMO INTERACTIVA</small></div></div>
+        <div class="workspace-switch"><div class="workspace-avatar">${logo || esc(state.settings.businessName.slice(0, 1))}</div><div><strong>${esc(state.settings.businessName)}</strong><small>${esc(state.settings.subtitle)}</small></div><span>⌄</span></div>
         <div class="nav-label">ESPACIO DE TRABAJO</div>
         <nav class="nav">${nav.map(([key, label]) => `<button data-view="${key}" class="nav-item ${view === key ? 'active' : ''}"><span class="nav-icon">${icon[key]}</span>${label}</button>`).join('')}<button class="nav-item mobile-more" data-modal="more"><span class="nav-icon">⋯</span>Más</button></nav>
         <div class="sidebar-bottom"><div class="demo-card"><span class="demo-pulse"></span><strong>Modo demostración</strong><p>Datos ficticios guardados en este navegador.</p><button data-view="configuracion">Cambiar negocio <span>↗</span></button></div><div class="sidebar-foot">Diseñado para operaciones reales<br><span>Versión de muestra · 2026</span></div></div>
@@ -188,7 +190,7 @@ function renderSettings() {
   if (!isAdmin()) return `${heading('ACCESO', 'Configuración', 'La personalización corresponde al rol administrador.')}${empty('Vista restringida', 'Cambia al rol administrador para explorar las opciones.')}`;
   const methods = ['Efectivo', 'Tarjeta', 'Transferencia'];
   return `${heading('ADAPTA EL SISTEMA', 'Personalización', 'Configura reglas de operación y observa el efecto en toda la demo.', '')}
-    <div class="settings-grid"><section class="panel"><div class="section-head"><div><span class="eyebrow">IDENTIDAD Y OPERACIÓN</span><h2>Configuración del negocio</h2></div></div><form id="settings-form" class="form-grid"><label>Nombre del negocio<input name="businessName" value="${esc(state.settings.businessName)}" required /></label><label>Descripción breve<input name="subtitle" value="${esc(state.settings.subtitle)}" /></label><label>Color principal<input name="accent" type="color" value="${esc(state.settings.accent)}" /></label><label>Moneda de visualización<select name="currency">${['MXN', 'USD', 'EUR'].map((currency) => `<option ${state.settings.currency === currency ? 'selected' : ''}>${currency}</option>`).join('')}</select></label><label>Áreas (separadas por coma)<input name="areas" value="${esc(state.settings.areas.join(', '))}" required /></label><label>Impuesto %<input name="taxRate" type="number" min="0" max="100" step="0.01" value="${state.settings.taxRate}" /></label><label>Alerta de stock bajo<input name="lowStockAt" type="number" min="0" step="1" value="${state.settings.lowStockAt}" /></label><fieldset><legend>Medios de pago</legend>${methods.map((method) => `<label class="check"><input type="checkbox" name="paymentMethods" value="${method}" ${state.settings.paymentMethods.includes(method) ? 'checked' : ''} /> ${method}</label>`).join('')}</fieldset><label class="check wide-field"><input type="checkbox" name="allowNegativeStock" ${state.settings.allowNegativeStock ? 'checked' : ''} /> Permitir stock negativo</label><button class="button primary" type="submit">Guardar configuración</button></form></section>
+    <div class="settings-grid"><section class="panel"><div class="section-head"><div><span class="eyebrow">IDENTIDAD Y OPERACIÓN</span><h2>Configuración del negocio</h2></div></div><form id="settings-form" class="form-grid"><label>Nombre del negocio<input name="businessName" value="${esc(state.settings.businessName)}" required /></label><label>Descripción breve<input name="subtitle" value="${esc(state.settings.subtitle)}" /></label><label>Color principal<input name="accent" type="color" value="${esc(state.settings.accent)}" /></label><label class="wide-field">Logo opcional (PNG, JPEG o WebP; máximo 500 KB)<input name="logoFile" type="file" accept="image/png,image/jpeg,image/webp" /></label><label class="check wide-field"><input name="removeLogo" type="checkbox" /> Quitar logo actual</label><label>Moneda de visualización<select name="currency">${['MXN', 'USD', 'EUR'].map((currency) => `<option ${state.settings.currency === currency ? 'selected' : ''}>${currency}</option>`).join('')}</select></label><label>Áreas (separadas por coma)<input name="areas" value="${esc(state.settings.areas.join(', '))}" required /></label><label>Impuesto %<input name="taxRate" type="number" min="0" max="100" step="0.01" value="${state.settings.taxRate}" /></label><label>Alerta de stock bajo<input name="lowStockAt" type="number" min="0" step="1" value="${state.settings.lowStockAt}" /></label><fieldset><legend>Medios de pago</legend>${methods.map((method) => `<label class="check"><input type="checkbox" name="paymentMethods" value="${method}" ${state.settings.paymentMethods.includes(method) ? 'checked' : ''} /> ${method}</label>`).join('')}</fieldset><label class="check wide-field"><input type="checkbox" name="allowNegativeStock" ${state.settings.allowNegativeStock ? 'checked' : ''} /> Permitir stock negativo</label><button class="button primary" type="submit">Guardar configuración</button></form></section>
     <div class="settings-side"><section class="panel"><div class="section-head"><div><span class="eyebrow">ESCENARIOS DE EJEMPLO</span><h2>Prueba otro negocio</h2></div></div><p class="muted">Cada escenario inicia una base ficticia distinta. Al cambiar, se reinicia el progreso actual de la demo.</p><div class="preset-options"><button data-preset="lounge" class="preset ${state.preset === 'lounge' ? 'active' : ''}"><span>✦</span><div><strong>Lounge + boutique</strong><small>Servicios, comida y consignación</small></div></button><button data-preset="retail" class="preset ${state.preset === 'retail' ? 'active' : ''}"><span>◈</span><div><strong>Tienda + café</strong><small>Inventario, compras y mostrador</small></div></button></div><button class="text-link danger" id="reset-demo">Restablecer escenario actual</button></section><section class="panel"><div class="section-head"><div><span class="eyebrow">INTEGRACIONES</span><h2>Conexiones posibles</h2></div></div><div class="integration"><span>W</span><div><strong>Catálogo web / Wix</strong><small>Conector de muestra · sin cuenta real</small></div>${badge('Demo', 'neutral')}</div><div class="integration"><span>✉</span><div><strong>Balances por correo</strong><small>Vista previa en reportes</small></div>${badge('Demo', 'neutral')}</div><p class="fine-print">En un proyecto para un cliente, estos conectores se diseñan según sus herramientas y permisos.</p>${renderIntegrationPanel()}</section></div></div>`;
 }
 
@@ -389,6 +391,19 @@ app.addEventListener('submit', (event) => {
   if (form.id === 'settings-form') {
     payload.paymentMethods = new FormData(form).getAll('paymentMethods');
     payload.allowNegativeStock = new FormData(form).has('allowNegativeStock');
+    const file = form.querySelector('[name="logoFile"]').files[0];
+    if (file) {
+      if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type) || file.size > 500000) {
+        notify('El logo debe ser PNG, JPEG o WebP y medir menos de 500 KB.', 'error');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => { payload.logoDataUrl = reader.result; dispatch('settings', payload, 'Configuración guardada.'); };
+      reader.onerror = () => notify('No se pudo leer el logo.', 'error');
+      reader.readAsDataURL(file);
+      return;
+    }
+    if (new FormData(form).has('removeLogo')) payload.logoDataUrl = '';
     dispatch('settings', payload, 'Configuración guardada.'); return;
   }
   const type = form.dataset.form;

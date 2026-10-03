@@ -163,6 +163,12 @@ export function applyAction(current, action, payload = {}) {
       }
       state.settings.businessName = requireText(payload.businessName, 'Nombre del negocio');
       state.settings.subtitle = String(payload.subtitle || '').trim();
+      if (payload.logoDataUrl !== undefined) {
+        if (payload.logoDataUrl && (!/^data:image\/(png|jpeg|webp);base64,/i.test(payload.logoDataUrl) || payload.logoDataUrl.length > 700000)) {
+          throw new Error('El logo debe ser PNG, JPEG o WebP y medir menos de 500 KB.');
+        }
+        state.settings.logoDataUrl = payload.logoDataUrl || null;
+      }
       state.settings.accent = /^#[0-9a-f]{6}$/i.test(payload.accent) ? payload.accent : state.settings.accent;
       state.settings.currency = ['MXN', 'USD', 'EUR'].includes(payload.currency) ? payload.currency : state.settings.currency;
       state.settings.taxRate = requireNumber(payload.taxRate, 'Impuesto');
