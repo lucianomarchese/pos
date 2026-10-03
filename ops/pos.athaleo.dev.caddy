@@ -1,0 +1,12 @@
+# Demo publica de POS Studio. Los datos de cada visitante permanecen en su navegador.
+pos.athaleo.dev {
+	root * /srv/www/astro/pos/current
+	file_server
+	encode zstd gzip
+
+	header {
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"
+		Referrer-Policy "strict-origin-when-cross-origin"
+	}
+}

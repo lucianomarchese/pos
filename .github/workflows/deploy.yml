@@ -1,0 +1,72 @@
+name: Verify and deploy POS demo
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pos-demo-production
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm test
+      - run: npm run build
+      - name: Check public files
+        run: test -f dist/index.html && test -f dist/styles.css && test -f dist/src/app.js
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm run build
+      - name: Connect to Athaleo VPS
+        uses: tailscale/github-action@v4
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+      - name: Configure SSH
+        env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+          VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          test -n "$DEPLOY_KEY"
+          test -n "$VPS_KNOWN_HOSTS"
+          install -m 700 -d "$HOME/.ssh"
+          printf '%s\n' "$DEPLOY_KEY" > "$HOME/.ssh/pos_deploy"
+          printf '%s\n' "$VPS_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/pos_deploy" "$HOME/.ssh/known_hosts"
+      - name: Upload and activate release
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          set -euo pipefail
+          test -n "$VPS_HOST"
+          test -n "$VPS_USER"
+          remote="$VPS_USER@$VPS_HOST"
+          release="/srv/www/astro/pos/releases/$GITHUB_SHA"
+          ssh -p 2288 -i "$HOME/.ssh/pos_deploy" -o StrictHostKeyChecking=yes "$remote" "mkdir -p '$release'"
+          rsync -az --delete -e "ssh -p 2288 -i $HOME/.ssh/pos_deploy -o StrictHostKeyChecking=yes" dist/ "$remote:$release/"
+          scp -P 2288 -i "$HOME/.ssh/pos_deploy" -o StrictHostKeyChecking=yes ops/pos.athaleo.dev.caddy "$remote:/etc/caddy/sites/pos.athaleo.dev.caddy"
+          ssh -p 2288 -i "$HOME/.ssh/pos_deploy" -o StrictHostKeyChecking=yes "$remote" 'caddy validate --config /etc/caddy/Caddyfile'
+          ssh -p 2288 -i "$HOME/.ssh/pos_deploy" -o StrictHostKeyChecking=yes "$remote" "ln -sfn '$release' /srv/www/astro/pos/current.next && mv -Tf /srv/www/astro/pos/current.next /srv/www/astro/pos/current && sudo -n systemctl reload caddy"
