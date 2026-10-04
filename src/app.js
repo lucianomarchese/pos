@@ -64,8 +64,8 @@ function notify(message, kind = 'success') {
 function dispatch(action, payload, success) {
   try {
     const outcome = applyAction(state, action, payload);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(outcome.state));
     state = outcome.state;
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch { /* sin almacenamiento: la demo sigue en memoria */ }
     modal = null;
     render();
     if (success) notify(success);

@@ -22,7 +22,7 @@ export function selectField(label, name, options, selected) {
 
 // Radios con aspecto de chip o de control segmentado: un toque, sin menús desplegables.
 function radioGroup(kind, name, options, selected) {
-  const current = selected ?? options[0]?.[0];
+  const current = options.some(([value]) => String(value) === String(selected)) ? selected : options[0]?.[0];
   return `<div class="${kind}" role="radiogroup">${options.map(([value, label]) => `<label class="${kind}-option"><input type="radio" name="${esc(name)}" value="${esc(value)}" ${String(value) === String(current) ? 'checked' : ''} /><span>${esc(label)}</span></label>`).join('')}</div>`;
 }
 export const chips = (name, options, selected) => radioGroup('chips', name, options, selected);

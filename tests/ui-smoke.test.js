@@ -103,6 +103,20 @@ test('modal forms render for operational flows', () => {
   }
 });
 
+test('actions keep working in memory when storage is blocked', () => {
+  globalThis.localStorage = {
+    getItem() { throw new Error('bloqueado'); },
+    setItem() { throw new Error('bloqueado'); },
+  };
+  try {
+    navigate('equipo');
+    click({ clock: 'in', id: 'emp-arjun' });
+    assert.ok(app.innerHTML.includes('En turno desde'), 'El checador no registró la entrada');
+  } finally {
+    globalThis.localStorage = workingStorage;
+  }
+});
+
 test('mode toggle flips day and night even when storage is blocked', () => {
   navigate('inicio');
   const before = document.documentElement.dataset.mode;
