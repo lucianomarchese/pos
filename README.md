@@ -1,6 +1,6 @@
 # POS Studio — demo de ventas e inventario
 
-Webapp de demostración independiente creada por Luciano a partir de su experiencia desarrollando sistemas de POS, inventario y operación para un negocio. Usa **datos ficticios** y muestra cómo se conectan las ventas, existencias, proveedores, caja, equipo y reportes.
+Webapp de demostración independiente creada por Luciano a partir de su experiencia desarrollando sistemas de POS, inventario y operación para un negocio. Usa **datos ficticios** de **Kesar**, un espacio de bienestar con boutique, cocina vegana y barra, y muestra cómo se conectan las ventas, existencias, proveedores, caja, equipo y reportes.
 
 ## Abrir la demo local
 
@@ -18,8 +18,9 @@ Abrir `http://localhost:4173` en el navegador. Los cambios se guardan en `localS
 2. Registrar una entrega o retiro de proveedor, consultar saldo y aplicar un pago.
 3. Registrar entrada/salida de un integrante y revisar sus horas y comisiones.
 4. Devolver una venta y verificar movimientos compensatorios.
-5. Cambiar nombre, logo local, color, áreas, impuestos, moneda de visualización, medios de pago y reglas de stock; probar un segundo escenario de negocio.
+5. Cambiar nombre, logo local, tema (Azafrán, Pavo real o Índigo), áreas, impuestos, moneda de visualización, medios de pago y reglas de stock; probar el segundo escenario de negocio (Mercado Norte).
 6. Simular la cola de sincronización del catálogo, consultar una vista previa de balance y exportar ventas a CSV.
+7. Alternar entre modo día y modo noche desde la barra superior.
 
 ## Publicación en Athaleo
 
@@ -35,17 +36,29 @@ Para recuperar la configuración de despliegue si se pierden los secretos del re
 
 El workflow instala `/etc/caddy/sites/pos.athaleo.dev.caddy` y publica archivos en `/srv/www/astro/pos/releases/<commit>`. Caddy sirve `/srv/www/astro/pos/current`, un enlace a la versión activa. No requiere crear un servicio de Node ni una base de datos. La configuración de Caddy está en `ops/pos.athaleo.dev.caddy`.
 
-## Diseño para iPad
+## Diseño
 
-La pantalla de inicio recupera los accesos grandes del POS original: Ventas, Caja, Equipo y checador, Inventario, Transacciones y Proveedores se abren con un toque. El escenario lounge usa una paleta cálida de arena, terracota y verde salvia, además de tipografía serif en títulos; la pantalla de ventas conserva el catálogo y la comanda en paralelo. Se revisó el diseño en una ventana de 1024 × 768, tamaño objetivo del iPad horizontal. Falta probarlo en un iPad físico.
+Pensado primero para iPad (horizontal y vertical) y cuidado también en escritorio y móvil. No hay sidebar: el inicio funciona como portal, con accesos grandes en forma de arco, y dentro de cada módulo un dock inferior lleva a Ventas, Caja, Inventario, Equipo y al resto de las secciones.
+
+- **Modo día, "Haveli":** marfil, azafrán, sindoor (bermellón) e índigo, con arcos mughal y una celosía *jali* en los paneles principales.
+- **Modo noche, "Pavo real":** verde pavo real profundo, ciruela y filetes dorados, con un brillo cálido en las acciones principales. Sigue la preferencia del sistema y se alterna con ☾/☀.
+- **Tipografía de fundiciones indias:** Rozha One para títulos y Mukta para textos, ambas de Ek Type.
+- **Íconos de línea propios** en SVG para productos e interfaz (`src/icons.js`).
+- **Temas curados:** Azafrán, Pavo real e Índigo, en lugar de un selector de color libre.
+- En Ventas, el pago y la persona que atiende se eligen con un toque; en iPad vertical y en móvil, la comanda se abre como hoja inferior.
+
+Se revisó en 1024 × 768, 1180 × 820, 820 × 1180, 1440 × 900 y 390 × 844, en ambos modos. Falta probarlo en un iPad físico.
 
 ## Estructura
 
 - `src/data.js`: escenarios sintéticos y estado inicial.
 - `src/domain.js`: reglas de venta, inventario, proveedores, caja y personal. No depende del DOM.
-- `src/app.js`: pantallas, formularios y navegación.
-- `styles.css`: diseño responsive para escritorio e iPad.
+- `src/app.js`: pantallas, formularios, navegación y estado de la interfaz.
+- `src/ui.js`: componentes de presentación (barra superior, dock, tarjetas, chips, badges).
+- `src/icons.js`: íconos SVG propios.
+- `styles.css`: tokens de día y noche, temas curados y diseño responsive.
 - `tests/domain.test.js`: recorridos de negocio importantes.
+- `tests/icons.test.js` y `tests/ui-smoke.test.js`: íconos, pantallas, modales y modo día/noche.
 - `scripts/build.mjs`: prepara solo los archivos públicos en `dist/`.
 - `.github/workflows/deploy.yml`: verificaciones y despliegue al VPS.
 
