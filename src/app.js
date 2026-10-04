@@ -18,6 +18,7 @@ let mode = document.documentElement?.dataset.mode === 'night' ? 'night' : 'day';
 let cart = [];
 let draft = { discountPct: 0, tip: 0, employeeId: null, paymentMethod: null };
 let cartOpen = false;
+let extrasOpen = false;
 let search = '';
 let areaFilter = 'Todas';
 let modal = null;
@@ -114,7 +115,7 @@ function renderHome() {
   ];
   return `<div class="home">
     <section class="welcome">
-      <span class="eyebrow">${esc(state.settings.subtitle)}</span>
+      <span class="eyebrow">${esc(state.settings.businessName)} · hoy</span>
       <h1>Namaste,<br><em>${esc(currentPerson())}</em></h1>
       <p class="welcome-date">${esc(dayText.charAt(0).toUpperCase() + dayText.slice(1))} · Turno ${now.getHours() < 14 ? 'mañana' : 'tarde'}</p>
       <div class="day-cash"><span>Caja del día</span><strong>${money(stats.todayRevenue)}</strong><small>${todays.length} ${todays.length === 1 ? 'venta' : 'ventas'} hoy${state.sales[0] ? ` · última ${sinceText(state.sales[0].at)}` : ''}</small></div>
@@ -152,6 +153,11 @@ function quoteDetail(quote) {
   return [`Subtotal ${money(quote.subtotal)}`, quote.discount ? `desc. −${money(quote.discount)}` : '', quote.tax ? `imp. ${money(quote.tax)}` : '', quote.tip ? `propina ${money(quote.tip)}` : ''].filter(Boolean).join(' · ');
 }
 
+function extrasSummary() {
+  const parts = [Number(draft.discountPct) ? `${Number(draft.discountPct)}% desc.` : '', Number(draft.tip) ? `propina ${money(draft.tip)}` : ''].filter(Boolean);
+  return parts.join(' · ') || 'Sin ajustes';
+}
+
 function renderCart() {
   const lines = cartLines();
   const quote = currentQuote();
@@ -163,13 +169,12 @@ function renderCart() {
       <header class="cart-head"><div><h2>Comanda</h2><small>${count ? `${count} ${count === 1 ? 'producto' : 'productos'}` : 'Nueva venta'}</small></div>${lines.length ? '<button class="text-link" data-action="clear-cart">Vaciar</button>' : ''}</header>
       <div class="cart-body">${lines.length ? lines.map((line) => `<div class="cart-line"><span class="qty">${line.quantity}</span><div class="cart-line-info"><strong>${esc(line.product.name)}</strong><small>${money(line.product.price)} c/u</small></div><div class="cart-line-end"><b>${money(line.product.price * line.quantity)}</b><div class="stepper"><button type="button" data-cart-minus="${esc(line.productId)}" aria-label="Quitar uno">${icon('minus')}</button><button type="button" data-cart-plus="${esc(line.productId)}" aria-label="Agregar uno">${icon('plus')}</button></div></div></div>`).join('') : empty('thali', 'Comanda vacía', 'Toca un producto para empezar.')}</div>
       <form id="sale-form" class="cart-footer">
-        <span class="cart-label">Atiende</span>
-        ${chips('employeeId', activeEmployees().map((employee) => [employee.id, employee.name]), draft.employeeId)}
+        <div class="cart-row"><span class="cart-label">Atiende</span>${chips('employeeId', activeEmployees().map((employee) => [employee.id, employee.name]), draft.employeeId)}</div>
+        <details class="cart-extras" ${extrasOpen ? 'open' : ''}><summary><span>Descuento y propina</span><small>${esc(extrasSummary())}</small></summary>
         <div class="cart-adjust">
           <label>Descuento %<span class="discount-row"><input type="number" name="discountPct" min="0" max="100" step="1" inputmode="decimal" value="${esc(draft.discountPct)}" />${[10, 15].map((value) => `<button type="button" class="mini-chip ${Number(draft.discountPct) === value ? 'active' : ''}" data-discount="${value}">${value}%</button>`).join('')}</span></label>
           <label>Propina<input type="number" name="tip" min="0" step="0.01" inputmode="decimal" value="${esc(draft.tip)}" /></label>
-        </div>
-        <span class="cart-label">Pago</span>
+        </div></details>
         ${segmented('paymentMethod', state.settings.paymentMethods.map((method) => [method, method]), draft.paymentMethod)}
         <div class="cart-total"><span>Total<small>${esc(quoteDetail(quote))}</small></span><strong>${total}</strong></div>
         <button class="button primary wide pay-button" type="submit" ${!lines.length ? 'disabled' : ''}>Cobrar ${total}</button>
@@ -233,7 +238,7 @@ function renderTransactions() {
 function renderTeam() {
   const activeSales = state.sales.filter((sale) => sale.status === 'completed');
   return `${pageIntro('Turnos, ventas asignadas y comisiones calculadas por persona.', isAdmin() ? `<button class="button primary" data-modal="employee">${icon('plus')}Integrante</button>` : '')}
-    <div class="employee-grid">${state.employees.map((employee) => { const open = state.timeEntries.find((entry) => entry.employeeId === employee.id && !entry.outAt); const sales = activeSales.filter((sale) => sale.employeeId === employee.id); const hours = sum(state.timeEntries.filter((entry) => entry.employeeId === employee.id).map((entry) => entry.hours)); return `<section class="employee-card ${open ? 'on-shift' : ''}"><div class="employee-top"><span class="avatar">${esc(employee.name.slice(0, 2).toUpperCase())}</span>${badge(open ? `En turno desde ${time(open.inAt)}` : employee.active ? 'Fuera de turno' : 'Inactivo', open ? 'good' : 'neutral')}</div><h2>${esc(employee.name)}</h2><p>${esc(employee.role)}</p><div class="mini-stats"><div><span>Ventas</span><strong>${sales.length}</strong></div><div><span>Comisiones</span><strong>${money(sum(sales.map((sale) => sale.commission)))}</strong></div><div><span>Horas</span><strong>${hours.toFixed(2)}</strong></div></div><div class="employee-actions"><button class="button ${open ? 'secondary' : 'primary'}" data-clock="${open ? 'out' : 'in'}" data-id="${esc(employee.id)}" ${!employee.active ? 'disabled' : ''}>${icon('clock')}${open ? 'Registrar salida' : 'Registrar entrada'}</button>${isAdmin() ? `<button class="icon-button" data-modal="employee" data-id="${esc(employee.id)}" aria-label="Editar ${esc(employee.name)}">✎</button>` : ''}</div></section>`; }).join('')}</div>
+    <div class="employee-grid">${state.employees.map((employee) => { const open = state.timeEntries.find((entry) => entry.employeeId === employee.id && !entry.outAt); const sales = activeSales.filter((sale) => sale.employeeId === employee.id); const hours = sum(state.timeEntries.filter((entry) => entry.employeeId === employee.id).map((entry) => entry.hours)); return `<section class="employee-card ${open ? 'on-shift' : ''}"><div class="employee-top"><span class="avatar">${esc(employee.name.slice(0, 2).toUpperCase())}</span>${badge(open ? `En turno desde ${time(open.inAt)}` : employee.active ? 'Fuera de turno' : 'Inactivo', open ? 'good' : 'neutral')}</div><h2>${esc(employee.name)}</h2><p>${esc(employee.role)}</p><div class="mini-stats"><div><span>Ventas</span><strong>${sales.length}</strong></div><div><span>Comisiones</span><strong>${money(sum(sales.map((sale) => sale.commission)))}</strong></div><div><span>Horas</span><strong>${hours.toFixed(2)}</strong></div></div><div class="employee-actions"><button class="button secondary" data-clock="${open ? 'out' : 'in'}" data-id="${esc(employee.id)}" ${!employee.active ? 'disabled' : ''}>${icon('clock')}${open ? 'Registrar salida' : 'Registrar entrada'}</button>${isAdmin() ? `<button class="icon-button" data-modal="employee" data-id="${esc(employee.id)}" aria-label="Editar ${esc(employee.name)}">✎</button>` : ''}</div></section>`; }).join('')}</div>
     ${card('Horas registradas', `<div class="table-wrap"><table><thead><tr><th>Persona</th><th>Entrada</th><th>Salida</th><th>Horas</th><th>Pago estimado</th></tr></thead><tbody>${state.timeEntries.map((entry) => `<tr><td><strong>${esc(employeeName(entry.employeeId))}</strong></td><td>${date(entry.inAt)}</td><td>${date(entry.outAt)}</td><td>${entry.hours == null ? 'En curso' : entry.hours.toFixed(2)}</td><td>${entry.pay == null ? '—' : money(entry.pay)}</td></tr>`).join('') || `<tr><td colspan="5">${empty('clock', 'Sin turnos registrados', 'Marca una entrada para empezar.')}</td></tr>`}</tbody></table></div>`, { eyebrow: 'Checador', className: 'table-card' })}`;
 }
 
@@ -388,6 +393,7 @@ function refreshTotals() {
   panel.querySelector('.cart-total small').textContent = quoteDetail(quote);
   panel.querySelector('.pay-button').textContent = `Cobrar ${total}`;
   panel.querySelector('.cart-summary strong').textContent = total;
+  panel.querySelector('.cart-extras small').textContent = extrasSummary();
 }
 
 function exportSalesCsv() {
@@ -471,6 +477,11 @@ app.addEventListener('input', (event) => {
     refreshTotals();
   }
 });
+
+// <details> no burbujea 'toggle': se escucha en captura para recordar si quedó abierto entre renders.
+app.addEventListener('toggle', (event) => {
+  if (event.target.matches?.('.cart-extras')) extrasOpen = event.target.open;
+}, true);
 
 app.addEventListener('change', (event) => {
   if (event.target.closest('#sale-form') && ['employeeId', 'paymentMethod'].includes(event.target.name)) {
