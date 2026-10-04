@@ -1,43 +1,49 @@
-export const STORAGE_KEY = 'pos-studio-demo-v1';
+export const STORAGE_KEY = 'pos-studio-demo-v2';
+export const THEMES = ['azafran', 'pavo', 'indigo'];
 
 const now = () => new Date().toISOString();
 const id = (prefix) => `${prefix}-${crypto.randomUUID().slice(0, 8)}`;
 
 const presets = {
   lounge: {
-    businessName: 'Lounge Aurora',
-    subtitle: 'Boutique · Cocina · Lounge',
-    accent: '#b7642d',
+    businessName: 'Kesar',
+    subtitle: 'Bienestar · Boutique · Cocina · Barra',
+    theme: 'azafran',
     currency: 'MXN',
     taxRate: 0,
     lowStockAt: 4,
     allowNegativeStock: false,
-    areas: ['Boutique', 'Cocina', 'Lounge'],
+    areas: ['Barra', 'Cocina', 'Boutique', 'Bienestar'],
     paymentMethods: ['Efectivo', 'Tarjeta', 'Transferencia'],
     suppliers: [
-      { id: 'sup-atelier', name: 'Atelier Nómada', contact: 'contacto@ejemplo.test', notes: 'Consignación de boutique' },
-      { id: 'sup-cocina', name: 'Mercado del Sur', contact: 'ventas@ejemplo.test', notes: 'Insumos de cocina' },
+      { id: 'sup-bagru', name: 'Taller Bagru', contact: 'contacto@ejemplo.test', notes: 'Textiles estampados a mano, en consignación' },
+      { id: 'sup-laton', name: 'Casa de Latón', contact: 'hola@ejemplo.test', notes: 'Objetos y aromas, en consignación' },
+      { id: 'sup-verde', name: 'Mercado Verde', contact: 'ventas@ejemplo.test', notes: 'Insumos de cocina vegana' },
     ],
     products: [
-      { id: 'p-ceramica', sku: 'BT-001', name: 'Taza de cerámica', category: 'Cerámica', area: 'Boutique', price: 420, cost: 230, stock: 14, trackStock: true, supplierId: 'sup-atelier', acquisition: 'consignment', color: '#ddc4aa', emoji: '☕' },
-      { id: 'p-vela', sku: 'BT-002', name: 'Vela de copal', category: 'Decoración', area: 'Boutique', price: 290, cost: 150, stock: 8, trackStock: true, supplierId: 'sup-atelier', acquisition: 'consignment', color: '#e9d4a8', emoji: '✦' },
-      { id: 'p-bolso', sku: 'BT-003', name: 'Bolso tejido', category: 'Accesorios', area: 'Boutique', price: 790, cost: 450, stock: 3, trackStock: true, supplierId: 'sup-atelier', acquisition: 'consignment', color: '#c2ad93', emoji: '◈' },
-      { id: 'p-limonada', sku: 'LG-001', name: 'Limonada de la casa', category: 'Bebidas', area: 'Lounge', price: 95, cost: 25, stock: 0, trackStock: false, supplierId: null, acquisition: 'none', color: '#b9cfa8', emoji: '◕' },
-      { id: 'p-matcha', sku: 'LG-002', name: 'Matcha frío', category: 'Bebidas', area: 'Lounge', price: 135, cost: 48, stock: 0, trackStock: false, supplierId: null, acquisition: 'none', color: '#a3bd9a', emoji: '◉' },
-      { id: 'p-toast', sku: 'CK-001', name: 'Toast de aguacate', category: 'Comida', area: 'Cocina', price: 185, cost: 68, stock: 0, trackStock: false, supplierId: 'sup-cocina', acquisition: 'purchase', color: '#d9c099', emoji: '▣' },
-      { id: 'p-bowl', sku: 'CK-002', name: 'Bowl tropical', category: 'Comida', area: 'Cocina', price: 210, cost: 78, stock: 0, trackStock: false, supplierId: 'sup-cocina', acquisition: 'purchase', color: '#dabb91', emoji: '◌' },
-      { id: 'p-remera', sku: 'BT-004', name: 'Remera de lino', category: 'Ropa', area: 'Boutique', price: 650, cost: 340, stock: 11, trackStock: true, supplierId: 'sup-atelier', acquisition: 'consignment', color: '#d8d2c5', emoji: '◇' },
+      { id: 'p-chai', sku: 'BR-001', name: 'Chai masala con avena', category: 'Bebidas calientes', area: 'Barra', price: 65, cost: 18, stock: 0, trackStock: false, supplierId: null, acquisition: 'none', icon: 'chai' },
+      { id: 'p-lassi', sku: 'BR-002', name: 'Lassi de mango y coco', category: 'Bebidas frías', area: 'Barra', price: 85, cost: 28, stock: 0, trackStock: false, supplierId: null, acquisition: 'none', icon: 'lassi' },
+      { id: 'p-jamaica', sku: 'BR-003', name: 'Agua de jamaica y cardamomo', category: 'Bebidas frías', area: 'Barra', price: 55, cost: 12, stock: 0, trackStock: false, supplierId: null, acquisition: 'none', icon: 'jar' },
+      { id: 'p-samosa', sku: 'CK-001', name: 'Samosas de papa (3)', category: 'Entradas', area: 'Cocina', price: 95, cost: 30, stock: 0, trackStock: false, supplierId: 'sup-verde', acquisition: 'purchase', icon: 'samosa' },
+      { id: 'p-thali', sku: 'CK-002', name: 'Thali vegano', category: 'Platos', area: 'Cocina', price: 210, cost: 78, stock: 0, trackStock: false, supplierId: 'sup-verde', acquisition: 'purchase', icon: 'thali' },
+      { id: 'p-dal', sku: 'CK-003', name: 'Dal de lentejas rojas', category: 'Platos', area: 'Cocina', price: 160, cost: 52, stock: 0, trackStock: false, supplierId: 'sup-verde', acquisition: 'purchase', icon: 'bowl' },
+      { id: 'p-chal', sku: 'BT-001', name: 'Chal block-print', category: 'Textiles', area: 'Boutique', price: 890, cost: 480, stock: 3, trackStock: true, supplierId: 'sup-bagru', acquisition: 'consignment', icon: 'scarf' },
+      { id: 'p-diya', sku: 'BT-002', name: 'Diya de latón', category: 'Objetos', area: 'Boutique', price: 240, cost: 120, stock: 6, trackStock: true, supplierId: 'sup-laton', acquisition: 'consignment', icon: 'diya' },
+      { id: 'p-incienso', sku: 'BT-003', name: 'Incienso de sándalo', category: 'Aromas', area: 'Boutique', price: 120, cost: 55, stock: 14, trackStock: true, supplierId: 'sup-laton', acquisition: 'consignment', icon: 'incense' },
+      { id: 'p-mala', sku: 'BT-004', name: 'Mala de rudraksha', category: 'Accesorios', area: 'Boutique', price: 420, cost: 230, stock: 2, trackStock: true, supplierId: 'sup-bagru', acquisition: 'consignment', icon: 'mala' },
+      { id: 'p-yoga', sku: 'BN-001', name: 'Clase de yoga', category: 'Clases', area: 'Bienestar', price: 250, cost: 0, stock: 0, trackStock: false, supplierId: null, acquisition: 'none', icon: 'lotus' },
+      { id: 'p-sonido', sku: 'BN-002', name: 'Baño de sonido', category: 'Terapias', area: 'Bienestar', price: 380, cost: 0, stock: 0, trackStock: false, supplierId: null, acquisition: 'none', icon: 'bowlsound' },
     ],
     employees: [
-      { id: 'emp-lucas', name: 'Lucas', role: 'Vendedor', hourlyRate: 90, commissionRate: 5, active: true },
       { id: 'emp-mara', name: 'Mara', role: 'Vendedora', hourlyRate: 90, commissionRate: 5, active: true },
+      { id: 'emp-arjun', name: 'Arjun', role: 'Vendedor', hourlyRate: 90, commissionRate: 5, active: true },
       { id: 'emp-admin', name: 'Alex', role: 'Administrador', hourlyRate: 0, commissionRate: 0, active: true },
     ],
   },
   retail: {
     businessName: 'Mercado Norte',
     subtitle: 'Tienda · Regalos · Café',
-    accent: '#518b78',
+    theme: 'indigo',
     currency: 'MXN',
     taxRate: 0,
     lowStockAt: 5,
@@ -49,12 +55,12 @@ const presets = {
       { id: 'sup-diseno', name: 'Diseño Local', contact: 'equipo@ejemplo.test', notes: 'Accesorios en consignación' },
     ],
     products: [
-      { id: 'p-cafe', sku: 'TN-001', name: 'Café de origen 250 g', category: 'Despensa', area: 'Tienda', price: 240, cost: 125, stock: 18, trackStock: true, supplierId: 'sup-finca', acquisition: 'purchase', color: '#bba58c', emoji: '◉' },
-      { id: 'p-miel', sku: 'TN-002', name: 'Miel artesanal', category: 'Despensa', area: 'Tienda', price: 190, cost: 90, stock: 9, trackStock: true, supplierId: 'sup-finca', acquisition: 'purchase', color: '#e1c688', emoji: '✦' },
-      { id: 'p-libreta', sku: 'TN-003', name: 'Libreta de viaje', category: 'Papelería', area: 'Tienda', price: 180, cost: 85, stock: 15, trackStock: true, supplierId: 'sup-diseno', acquisition: 'consignment', color: '#b0c3b2', emoji: '▤' },
-      { id: 'p-termo', sku: 'TN-004', name: 'Termo de acero', category: 'Accesorios', area: 'Tienda', price: 460, cost: 265, stock: 4, trackStock: true, supplierId: 'sup-diseno', acquisition: 'consignment', color: '#b6c6c4', emoji: '▥' },
-      { id: 'p-espresso', sku: 'CF-001', name: 'Espresso doble', category: 'Bebidas', area: 'Café', price: 65, cost: 18, stock: 0, trackStock: false, supplierId: null, acquisition: 'none', color: '#c6aa8f', emoji: '☕' },
-      { id: 'p-latte', sku: 'CF-002', name: 'Latte de vainilla', category: 'Bebidas', area: 'Café', price: 95, cost: 30, stock: 0, trackStock: false, supplierId: null, acquisition: 'none', color: '#d8c1a3', emoji: '◕' },
+      { id: 'p-cafe', sku: 'TN-001', name: 'Café de origen 250 g', category: 'Despensa', area: 'Tienda', price: 240, cost: 125, stock: 18, trackStock: true, supplierId: 'sup-finca', acquisition: 'purchase', icon: 'beans' },
+      { id: 'p-miel', sku: 'TN-002', name: 'Miel artesanal', category: 'Despensa', area: 'Tienda', price: 190, cost: 90, stock: 9, trackStock: true, supplierId: 'sup-finca', acquisition: 'purchase', icon: 'honey' },
+      { id: 'p-libreta', sku: 'TN-003', name: 'Libreta de viaje', category: 'Papelería', area: 'Tienda', price: 180, cost: 85, stock: 15, trackStock: true, supplierId: 'sup-diseno', acquisition: 'consignment', icon: 'notebook' },
+      { id: 'p-termo', sku: 'TN-004', name: 'Termo de acero', category: 'Accesorios', area: 'Tienda', price: 460, cost: 265, stock: 4, trackStock: true, supplierId: 'sup-diseno', acquisition: 'consignment', icon: 'flask' },
+      { id: 'p-espresso', sku: 'CF-001', name: 'Espresso doble', category: 'Bebidas', area: 'Café', price: 65, cost: 18, stock: 0, trackStock: false, supplierId: null, acquisition: 'none', icon: 'chai' },
+      { id: 'p-latte', sku: 'CF-002', name: 'Latte de vainilla', category: 'Bebidas', area: 'Café', price: 95, cost: 30, stock: 0, trackStock: false, supplierId: null, acquisition: 'none', icon: 'cup' },
     ],
     employees: [
       { id: 'emp-noa', name: 'Noa', role: 'Vendedora', hourlyRate: 85, commissionRate: 3, active: true },
@@ -67,14 +73,14 @@ const presets = {
 export function createSeed(preset = 'lounge') {
   const source = presets[preset] || presets.lounge;
   const state = {
-    version: 1,
+    version: 2,
     preset: presets[preset] ? preset : 'lounge',
     createdAt: now(),
     settings: {
       businessName: source.businessName,
       subtitle: source.subtitle,
       logoDataUrl: null,
-      accent: source.accent,
+      theme: source.theme,
       currency: source.currency,
       taxRate: source.taxRate,
       lowStockAt: source.lowStockAt,
@@ -98,7 +104,7 @@ export function createSeed(preset = 'lounge') {
   };
 
   // Historial sintético para que los paneles tengan contenido desde la primera visita.
-  const first = source.products[0];
+  const first = source.products.find((product) => product.trackStock) || source.products[0];
   const second = source.products.find((product) => !product.trackStock) || source.products[1];
   const past = new Date();
   past.setDate(past.getDate() - 1);

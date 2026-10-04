@@ -1,4 +1,4 @@
-import { createSeed, nextId } from './data.js';
+import { THEMES, createSeed, nextId } from './data.js';
 
 export const roundMoney = (value) => Math.round((Number(value) + Number.EPSILON) * 100) / 100;
 export const sum = (values) => roundMoney(values.reduce((total, value) => total + Number(value || 0), 0));
@@ -169,7 +169,8 @@ export function applyAction(current, action, payload = {}) {
         }
         state.settings.logoDataUrl = payload.logoDataUrl || null;
       }
-      state.settings.accent = /^#[0-9a-f]{6}$/i.test(payload.accent) ? payload.accent : state.settings.accent;
+      state.settings.theme = THEMES.includes(payload.theme) ? payload.theme : (state.settings.theme || 'azafran');
+      delete state.settings.accent;
       state.settings.currency = ['MXN', 'USD', 'EUR'].includes(payload.currency) ? payload.currency : state.settings.currency;
       state.settings.taxRate = requireNumber(payload.taxRate, 'Impuesto');
       state.settings.lowStockAt = requireNumber(payload.lowStockAt, 'Umbral de stock');
@@ -197,8 +198,9 @@ export function applyAction(current, action, payload = {}) {
       if (product.supplierId) mustFind(state.suppliers, product.supplierId, 'Proveedor');
       product.acquisition = payload.supplierId ? (payload.acquisition === 'consignment' ? 'consignment' : 'purchase') : 'none';
       product.active = payload.active !== false;
-      product.color = payload.color || '#d9d3c5';
-      product.emoji = String(payload.emoji || '◈').slice(0, 3);
+      product.icon = String(payload.icon || product.icon || 'spark');
+      delete product.color;
+      delete product.emoji;
       if (!payload.id) state.products.unshift(product);
       queueSync(state, `Producto ${payload.id ? 'editado' : 'creado'}: ${name}`);
       record(state, 'PRODUCTO', `${payload.id ? 'Editado' : 'Creado'}: ${name}`);
