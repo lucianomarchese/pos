@@ -28,45 +28,29 @@ jobs:
         run: test -f dist/index.html && test -f dist/styles.css && test -f dist/src/app.js
 
   deploy:
+    # La llave DEPLOY_KEY está atada en core a `ci-deploy --scope athaleo` (BWS CI_DEPLOY_KEY_ATHALEO):
+    # solo acepta el nombre del sitio. Core actualiza su checkout a main, prueba, construye y publica.
     if: github.event_name != 'pull_request'
     needs: verify
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
-        with:
-          node-version: '22'
-      - run: npm run build
       - name: Connect to Athaleo VPS
-        uses: tailscale/github-action@v4
+        uses: tailscale/github-action@d1b6cd204f8dceda5b3eaad7f1f767be390056cd # v4
         with:
           oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
           tags: tag:ci
-      - name: Configure SSH
+      - name: Deploy on core
         env:
           DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
           VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
-        run: |
-          set -euo pipefail
-          test -n "$DEPLOY_KEY"
-          test -n "$VPS_KNOWN_HOSTS"
-          install -m 700 -d "$HOME/.ssh"
-          printf '%s\n' "$DEPLOY_KEY" > "$HOME/.ssh/pos_deploy"
-          printf '%s\n' "$VPS_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
-          chmod 600 "$HOME/.ssh/pos_deploy" "$HOME/.ssh/known_hosts"
-      - name: Upload and activate release
-        env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
         run: |
           set -euo pipefail
-          test -n "$VPS_HOST"
-          test -n "$VPS_USER"
-          remote="$VPS_USER@$VPS_HOST"
-          release="/srv/www/astro/pos/releases/$GITHUB_SHA"
-          ssh -p 2288 -i "$HOME/.ssh/pos_deploy" -o StrictHostKeyChecking=yes "$remote" "mkdir -p '$release'"
-          rsync -az --delete -e "ssh -p 2288 -i $HOME/.ssh/pos_deploy -o StrictHostKeyChecking=yes" dist/ "$remote:$release/"
-          scp -P 2288 -i "$HOME/.ssh/pos_deploy" -o StrictHostKeyChecking=yes ops/pos.athaleo.dev.caddy "$remote:/etc/caddy/sites/pos.athaleo.dev.caddy"
-          ssh -p 2288 -i "$HOME/.ssh/pos_deploy" -o StrictHostKeyChecking=yes "$remote" 'caddy validate --config /etc/caddy/Caddyfile'
-          ssh -p 2288 -i "$HOME/.ssh/pos_deploy" -o StrictHostKeyChecking=yes "$remote" "ln -sfn '$release' /srv/www/astro/pos/current.next && mv -Tf /srv/www/astro/pos/current.next /srv/www/astro/pos/current && sudo -n systemctl reload caddy"
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/deploy && chmod 600 ~/.ssh/deploy
+          printf '%s\n' "$VPS_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          ssh -p 2288 -i ~/.ssh/deploy -o StrictHostKeyChecking=yes -o IdentitiesOnly=yes "$VPS_USER@$VPS_HOST" pos
+      - name: Verify deployed site
+        run: curl --fail --silent --show-error --location --retry 5 --retry-delay 5 --output /dev/null https://pos.athaleo.dev
